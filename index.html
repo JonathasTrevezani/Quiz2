@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz - Formação Cidadã Contemporânea</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .quiz-header {
+            text-align: center;
+            margin-bottom: 25px;
+            color: white;
+        }
+
+        .quiz-header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .quiz-header p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        /* Seletor de quizzes */
+        .quiz-selector {
+            background: rgba(255,255,255,0.2);
+            border-radius: 50px;
+            padding: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            backdrop-filter: blur(5px);
+        }
+
+        .quiz-btn {
+            padding: 10px 25px;
+            border: none;
+            border-radius: 40px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: rgba(255,255,255,0.8);
+            color: #667eea;
+        }
+
+        .quiz-btn.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+
+        .quiz-btn:hover {
+            transform: scale(1.02);
+            background: white;
+        }
+
+        .questions-nav {
+            background: rgba(255,255,255,0.15);
+            border-radius: 50px;
+            padding: 12px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+            backdrop-filter: blur(5px);
+        }
+
+        .question-number-btn {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(255,255,255,0.9);
+            color: #667eea;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .question-number-btn:hover {
+            transform: scale(1.05);
+            background: white;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+
+        .question-number-btn.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+
+        .question-number-btn.answered {
+            background: #28a745;
+            color: white;
+            border: 2px solid #fff;
+        }
+
+        .question-number-btn.answered.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+        .question-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+
+        .question-number-display {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 30px;
+            padding: 5px 18px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .question-text {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+
+        /* Estilo para a imagem da questão */
+        .question-image {
+            text-align: center;
+            margin: 10px 0 20px 0;
+        }
+
+        .question-image img {
+            max-width: 100%;
+            max-height: 700px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+            object-fit: contain;
+        }
+
+        .alternatives {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .alternatives li {
+            margin-bottom: 12px;
+        }
+
+        .alternatives label {
+            display: flex;
+            align-items: flex-start;
+            padding: 14px 18px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid #e9ecef;
+        }
+
+        .alternatives label:hover {
+            background: #e9ecef;
+            border-color: #c3c7ca;
+            transform: translateX(3px);
+        }
+
+        .alternatives input[type="radio"] {
+            margin-right: 15px;
+            margin-top: 2px;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #667eea;
+            flex-shrink: 0;
+        }
+
+        .alternatives .option-letter {
+            font-weight: bold;
+            margin-right: 12px;
+            color: #667eea;
+            min-width: 25px;
+        }
+
+        .alternatives .option-text {
+            color: #333;
+            line-height: 1.4;
+            font-size: 0.95rem;
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 14px;
+            font-size: 1.1rem;
+            border-radius: 50px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 10px;
+        }
+
+        .btn-submit:hover {
+            transform: scale(1.01);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn-reset {
+            background: #6c757d;
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 12px;
+            font-size: 1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-reset:hover {
+            background: #5a6268;
+        }
+
+        .feedback {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .feedback.correct {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+            display: block;
+        }
+
+        .feedback.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+            display: block;
+        }
+
+        .result-area {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            text-align: center;
+            margin-top: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .score {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .perfect { color: #28a745; }
+        .good { color: #17a2b8; }
+        .regular { color: #ffc107; }
+        .bad { color: #dc3545; }
+
+        hr {
+            margin: 20px 0;
+            border: none;
+            height: 1px;
+            background: #e9ecef;
+        }
+
+        .progress-bar-container {
+            background: rgba(255,255,255,0.3);
+            border-radius: 30px;
+            height: 8px;
+            margin-top: 12px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            background: white;
+            height: 100%;
+            border-radius: 30px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .question-status {
+            text-align: center;
+            margin-top: 10px;
+            color: white;
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 20px;
+            color: white;
+            font-size: 2.0rem;
+            opacity: 0.7;
+        }
+
+        @media (max-width: 650px) {
+            .question-card {
+                padding: 20px;
+            }
+            .question-text {
+                font-size: 1rem;
+            }
+            .question-number-btn {
+                width: 38px;
+                height: 38px;
+                font-size: 0.85rem;
+            }
+            .questions-nav {
+                border-radius: 20px;
+                gap: 6px;
+            }
+            .quiz-header h1 {
+                font-size: 1.4rem;
+            }
+            .quiz-btn {
+                padding: 6px 15px;
+                font-size: 0.85rem;
+            }
+            .question-image img {
+                max-height: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="quiz-header">
+            <h1>📚 Quiz - Formação Inicial em Educação a Distância</h1>
+            <p>Selecione o quiz desejado</p>
+            <div class="progress-bar-container">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+            <div class="question-status" id="question-status"></div>
+        </div>
+
+        <!-- SELETOR DE QUIZZES -->
+        <div class="quiz-selector" id="quiz-selector"></div>
+
+        <div class="question-card" id="question-card">
+            <div id="question-content"></div>
+        </div>
+
+        <div class="questions-nav" id="questions-nav"></div>
+
+        <button class="btn-submit" id="submit-btn">✅ Corrigir Prova</button>
+        <button class="btn-reset" id="reset-btn">🔄 Reiniciar Quiz</button>
+
+        <div id="result-area" class="result-area" style="display: none;"></div>
+        <footer>Desenvolvedor Jonathas Trevezani</footer>
+    </div>
+        
+         <!-- SEÇÃO DE QUESTÕES DISCURSIVAS -->
+<div class="question-card" style="margin-top: 30px;">
+    <div style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 15px; border-radius: 20px 20px 0 0; text-align: center;">
+        <h3>✍️ Comentário Discursivo</h3>
+    </div>
+    <div style="padding: 20px;">
+        <p style="color: #666; margin-bottom: 15px; font-style: italic;">📌 Escolha UM dos temas abaixo para comentar.</p>
+        
+        <!-- Temas para escolher -->
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 10px; font-weight: bold;">🎯 Escolha o tema:</label>
+            <select id="temaDiscursivo" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; background: white;">
+                <option value="">-- Selecione um tema --</option>
+                <option value="etica_moral">1. Autonomia do Estudante na EaD</option>
+                <option value="cidadania">2. Papel do Professor Tutor como Mediador Pedagógico</option>
+                <option value="fake_news">3. Conectivismo e Aprendizagem em Rede</option>
+                <option value="sustentabilidade">4. Ambientes Virtuais de Aprendizagem (AVAs) e Recursos Tecnológicos</option>
+                <option value="diversidade">5. Impactos da Pandemia e o Futuro da EaD</option>
+            </select>
+        </div>
+        
+        <!-- Campo para escrever o comentário -->
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 10px; font-weight: bold;">✏️ Escreva seu comentário:</label>
+            <textarea id="comentarioDiscursivo" rows="5" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; resize: vertical;" placeholder="Digite aqui seu comentário sobre o tema escolhido..."></textarea>
+        </div>
+        
+        <!-- Botões -->
+        <div style="display: flex; gap: 10px; justify-content: center; margin-top: 10px;">
+            <button onclick="salvarComentario()" style="background: #28a745; color: white; border: none; padding: 10px 25px; border-radius: 25px; cursor: pointer; font-size: 0.9rem;">💾 Salvar Comentário</button>
+            <button onclick="limparComentario()" style="background: #6c757d; color: white; border: none; padding: 10px 25px; border-radius: 25px; cursor: pointer; font-size: 0.9rem;">🗑️ Limpar</button>
+        </div>
+        
+        <!-- Mensagem de confirmação -->
+        <div id="mensagemComentario" style="margin-top: 15px; text-align: center; font-size: 0.9rem; display: none;"></div>
+        
+        <details style="margin-top: 20px;">
+            <summary style="cursor: pointer; background: #667eea; color: white; padding: 10px; border-radius: 10px; text-align: center; font-weight: bold;">📖 Ver Gabarito para Estudo</summary>
+            <div style="margin-top: 15px; padding: 15px; background: #e9ecef; border-radius: 10px;">
+                <p><strong>1. Autonomia do Estudante na EaD:</strong><br>Autonomia na EaD: capacidade de gerenciar o próprio aprendizado com autodisciplina e responsabilidade.<br>Atitudes práticas: organizar rotina de estudos, acessar o AVA diariamente, participar de fóruns, buscar materiais complementares e saber pedir ajuda.<br>📌 Exemplo: Autonomia não é isolamento, mas protagonismo ativo → o aluno define ritmo e local, mas interage e colabora.</p>
+                <p><strong>2. Papel do Professor Tutor como Mediador Pedagógico:</strong><br>Papel do professor tutor na EaD: atuar como facilitador, mediador e orientador, promovendo interação, escuta ativa, acolhimento e estímulo à autonomia dos alunos.<br>Competências essenciais: domínio técnico do AVA, empatia e cordialidade, capacidade de motivar, dar feedbacks construtivos e sensibilidade para identificar dificuldades individuais.<br>📌 Exemplo: Tutor humanizador → valoriza a pedagogia afetiva e mantém presença constante, mesmo que silenciosa, criando vínculos no ambiente virtual.</p>
+                <p><strong>3. Conectivismo e Aprendizagem em Rede:</strong><br>Aprender em rede no conectivismo: reconhecer que o conhecimento está distribuído em múltiplas fontes (pessoas, sites, bancos de dados, redes sociais). A aprendizagem ocorre pela conexão entre essas fontes, sendo mais importante saber onde encontrar a informação do que memorizá-la.<br>Atitude prática do aluno conectivista: participar de comunidades virtuais da área, seguir especialistas em redes sociais, fazer curadoria de conteúdo, compartilhar descobertas com colegas e atualizar-se por feeds, podcasts ou canais digitais.<br>📌 Exemplo: Em vez de memorizar uma fórmula, o aluno conectivista sabe onde (site, fórum, especialista) encontrá-la rapidamente e como aplicá-la.</p>
+                <p><strong>4. Ambientes Virtuais de Aprendizagem (AVAs) e Recursos Tecnológicos:</strong><br>AVA na EaD: centraliza atividades, materiais e interações, favorecendo organização dos estudos, acesso a informações atualizadas e acompanhamento de desempenho.<br>Recursos e contribuições:<br>• Fóruns → promovem discussões assíncronas e troca de ideias entre colegas.<br>• Chats → permitem interação em tempo real com professores e tutores.<br>• Videoaulas → facilitam compreensão dinâmica dos conteúdos.<br>• Biblioteca virtual → acesso a livros e artigos sem sair de casa.<br>• Calendário acadêmico → ajuda no planejamento de prazos e atividades.<br>📌 Exemplo: O aluno usa o calendário para organizar entregas e o fórum para tirar dúvidas com colegas, integrando organização e colaboração.</p>
+                <p><strong>5. Impactos da Pandemia e o Futuro da EaD:</strong><br>Desafios da EaD na pandemia:<br>• Desigualdade de acesso à internet e dispositivos tecnológicos.<br>• Falta de capacitação docente para ferramentas digitais.<br>• Dificuldade de adaptação de alunos e professores ao ambiente virtual.<br>• Déficit de aprendizagem pelo fechamento das escolas.<br><br>Tendências futuras pós-pandemia:<br>• Ensino híbrido → integração entre presencial e remoto.<br>• Incentivo à autonomia dos alunos → protagonismo no aprendizado.<br>• Personalização da aprendizagem → uso de tecnologias para adaptar conteúdos.<br>• Formação continuada de professores → capacitação constante.<br>• Valorização de AVAs e metodologias ativas.<br>📌 Exemplo: A EaD veio para ficar, mas com aprimoramentos técnicos, pedagógicos e foco na equidade de acesso.</p>
+            </div>
+        </details>
+    </div>
+</div>
+
+<script>
+    function salvarComentario() {
+        const temaSelect = document.getElementById('temaDiscursivo');
+        const tema = temaSelect.options[temaSelect.selectedIndex]?.text;
+        const comentario = document.getElementById('comentarioDiscursivo').value;
+        const mensagemDiv = document.getElementById('mensagemComentario');
+        
+        if (!temaSelect.value) {
+            mensagemDiv.style.display = 'block';
+            mensagemDiv.style.color = '#dc3545';
+            mensagemDiv.innerHTML = '⚠️ Por favor, selecione um tema primeiro!';
+            setTimeout(() => { mensagemDiv.style.display = 'none'; }, 3000);
+            return;
+        }
+        
+        if (!comentario.trim()) {
+            mensagemDiv.style.display = 'block';
+            mensagemDiv.style.color = '#dc3545';
+            mensagemDiv.innerHTML = '⚠️ Por favor, escreva seu comentário!';
+            setTimeout(() => { mensagemDiv.style.display = 'none'; }, 3000);
+            return;
+        }
+        
+        // Salvar no console (apenas para treinamento)
+        console.log('Tema:', tema);
+        console.log('Comentário:', comentario);
+        
+        mensagemDiv.style.display = 'block';
+        mensagemDiv.style.color = '#28a745';
+        mensagemDiv.innerHTML = '✅ Comentário salvo! (Verifique no console do navegador - F12)';
+        
+        setTimeout(() => { mensagemDiv.style.display = 'none'; }, 3000);
+    }
+    
+    function limparComentario() {
+        document.getElementById('temaDiscursivo').value = '';
+        document.getElementById('comentarioDiscursivo').value = '';
+        document.getElementById('mensagemComentario').style.display = 'none';
+    }
+</script>
+        
+    <script>
+        // ============================================
+        // DEFINIÇÃO DOS QUIZZES
+        // ============================================
+        
+        // APOL 1 - 22 questões (seu quiz original)
+        const apol1 = [
+            { text: "A avaliação na Educação a Distância (EaD) é concebida como um processo amplo e contínuo, que envolve diferentes dimensões da prática pedagógica. Ela não se limita à verificação de resultados, mas busca compreender o percurso formativo do aluno, considerando aspectos individuais e coletivos. A diversidade de instrumentos avaliativos, como autoavaliação, coavaliação e heteroavaliação, contribui para uma abordagem mais justa e significativa, promovendo o protagonismo do estudante e o aprimoramento da qualidade do curso. <br><br> Considerando os fundamentos da avaliação na Educação a Distância (EaD), analise as alternativas e assinale aquela que representa essa prática, segundo o material de estudo. ", alternatives: ["A) Priorizar exclusivamente a avaliação somativa, com foco nos resultados e na mensuração objetiva do desempenho dos alunos.", "B) Integrar diferentes formas de avaliação, como autoavaliação, coavaliação e heteroavaliação, promovendo justiça e aprofundamento da aprendizagem.", "C) Utilizar apenas provas padronizadas como forma de avaliação, garantindo uniformidade e controle sobre os conteúdos abordados.", "D) Aplicar avaliações apenas ao final do curso, evitando interferências no ritmo de aprendizagem e na autonomia dos estudantes."], correct: "B" },
+            { text: "A Educação a Distância (EaD) exige do estudante uma postura ativa e responsável diante do processo de aprendizagem. A flexibilidade proporcionada por essa modalidade implica no desenvolvimento de competências como organização do tempo, disciplina, autonomia e participação colaborativa. O aluno deixa de ser um receptor passivo e assume o protagonismo na construção do conhecimento, interagindo com colegas, professores e recursos tecnológicos de forma crítica e estratégica. <br><br> Considerando as responsabilidades do aluno na Educação a Distância (EaD), analise as alternativas e assinale aquela que representa uma conduta adequada, segundo o material de estudo.", alternatives: ["A) Aguardar orientações detalhadas do professor para iniciar os estudos, evitando tomar decisões autônomas sobre o ritmo e a organização das atividades.", "B) Priorizar apenas as atividades avaliativas, deixando em segundo plano a leitura dos textos e a participação em fóruns e chats.", "C) Concentrar os estudos em um único dia da semana, aproveitando a flexibilidade da Educação a Distância (EaD) para realizar todas as atividades de forma intensiva.", "D) Estabelecer metas pessoais, organizar o tempo de estudo, interagir com os colegas e acessar frequentemente o Ambiente Virtual de Aprendizagem (AVA)."], correct: "D" },
+            { text: "A Educação a Distância (EaD) desempenhou papel fundamental na democratização do acesso à educação no Brasil, especialmente em regiões menos favorecidas. O material destaca instituições que foram referência internacional, contribuindo para a expansão da Educação a Distância (EaD) e para a inclusão social por meio da formação educacional. <br><br> Com base nas informações do material de estudo, avalie as alternativas e identifique qual instituição brasileira foi reconhecida mundialmente por sua atuação na democratização da Educação a Distância (EaD), considerando seu impacto na formação de cidadãos e na promoção da inclusão educacional.", alternatives: ["A) Centro Universitário Internacional Uninter, que possui mais de 750 Polos de Apoio Presencial (PAPs) pelo Brasil.", "B) Rádio Sociedade do Rio de Janeiro, que contribuiu para a difusão do conhecimento por meio de programas educativos.", "C) Associação Brasileira de Teleducação, que promoveu debates sobre o ensino a distância.", "D) Instituto Universal Brasileiro (IUB), que se destacou como referência internacional na oferta de cursos a distância."], correct: "D" },
+            { text: "O diálogo é apontado como elemento essencial para a comunicação multidirecional na Educação a Distância (EaD). No ambiente virtual, professores e alunos encontram tempo para interagir, tirar dúvidas e construir o conhecimento de forma colaborativa, promovendo relações mais próximas e afetivas do que no ensino presencial.<br><br>Considerando o papel do diálogo na Educação a Distância (EaD), analise as alternativas e assinale aquela que representa sua importância, segundo o material de estudo.","alternatives": ["A) Centralizar a comunicação entre professor e aluno em aspectos estritamente acadêmicos, priorizando a transmissão de conteúdo sobre a troca de experiências pessoais ou profissionais.","B) Estimular uma comunicação contínua, participativa e bidirecional, que promova o engajamento, o autoconhecimento e o fortalecimento dos vínculos no processo educativo.","C) Direcionar a comunicação principalmente para os espaços formais do ambiente virtual, garantindo organização, ainda que com menor espontaneidade nas trocas.","D) Priorizar a comunicação escrita como forma de registro acadêmico, limitando o uso de mídias audiovisuais para situações específicas."],correct: "B"},
+            { text: "Com a introdução de sistemas de comunicação mediada por computador, o ambiente da sala de aula virtual se diferencia do presencial, exigindo do professor novas habilidades e posturas. O docente deixa de ser apenas expositor de conteúdos e passa a atuar como orientador e facilitador da aprendizagem, otimizando seu trabalho e tornando-se mais perceptível para os alunos.<br><br>Considerando os desafios enfrentados pelo professor na Educação a Distância (EaD), reflita sobre as mudanças de postura exigidas e assinale a alternativa que representa essa transformação, conforme o material de estudo.", "alternatives": ["A) Manter-se exclusivamente como expositor oral, sem promover a autonomia dos alunos.", "B) Restringir a comunicação apenas ao ambiente presencial, ignorando as ferramentas digitais.", "C) Focar apenas na avaliação tradicional, sem considerar o desenvolvimento de competências.", "D) Adotar uma postura de orientador e facilitador da aprendizagem, valorizando a experiência dos alunos e estimulando o protagonismo estudantil."], correct: "D"},
+            { text: "A trajetória da Educação a Distância (EaD) é marcada por diferentes momentos históricos, nos quais a busca por ampliar o acesso ao ensino foi impulsionada por transformações sociais, culturais e tecnológicas. Desde os primeiros registros de ensino por correspondência até a consolidação de ambientes virtuais, observa-se uma evolução que reflete as necessidades de formação e as possibilidades de comunicação disponíveis em cada época.<br><br>Considerando o processo de desenvolvimento da Educação a Distância (EaD) apresentado no material de estudo, identifique qual evento é reconhecido como o marco inicial dessa modalidade de ensino no contexto mundial, levando em conta as características e os objetivos das primeiras experiências de ensino a distância.", alternatives: ["A) O surgimento de cursos transmitidos por rádio, que permitiram a difusão do conhecimento para regiões remotas.", "B) A oferta de aulas por correspondência por Caleb Philips em 1728, que enviava lições semanais aos alunos inscritos.", "C) A fundação do Instituto Universal Brasileiro (IUB), que democratizou o acesso à educação no Brasil.", "D) A criação das universidades virtuais, que possibilitaram o ensino on-line em larga escala."], correct: "B" },
+            { text: "A autonomia do estudante é uma das principais características da Educação a Distância (EaD), permitindo que cada indivíduo defina seu ritmo, local e forma de estudo. O material enfatiza que essa autonomia é fundamental para o sucesso do processo de aprendizagem, pois possibilita a adaptação às necessidades e preferências do aluno.<br><br>Com base nas discussões sobre autonomia na Educação a Distância (EaD) apresentadas no material, avalie as alternativas abaixo e identifique aquela que representa corretamente esse conceito, considerando o papel do estudante no processo de aprendizagem.", alternatives: ["A) O estudante escolhe o ritmo e o local de estudo conforme sua necessidade, podendo adaptar o processo de aprendizagem à sua realidade.", "B) O estudante depende exclusivamente do professor para aprender, seguindo um cronograma rígido e preestabelecido.", "C) O ensino ocorre apenas em ambientes escolares tradicionais, limitando as possibilidades de aprendizagem.", "D) O material didático é dispensável no processo de aprendizagem, sendo o estudante responsável por buscar todas as informações."], correct: "A" },
+            { text: "A Educação a Distância (EaD) tem se expandido progressivamente, impulsionada pela evolução tecnológica e pelas necessidades contemporâneas de formação contínua. Mesmo antes da pandemia, a Educação a Distância (EaD) já se consolidava como uma alternativa viável para diferentes perfis de estudantes, rompendo barreiras físicas e promovendo o acesso ao conhecimento por meio de bibliotecas virtuais, redes de comunicação e plataformas digitais. Essa expansão foi evidenciada por dados de censos educacionais, que apontam o crescimento expressivo da modalidade em instituições públicas e privadas.<br><br>Considerando o crescimento da Educação a Distância (EaD) em todos os níveis de ensino, analise as alternativas e assinale aquela que representa esse processo, segundo o material de estudo.", alternatives: ["A) A Educação a Distância (EaD) é voltada exclusivamente para alunos com limitações físicas, sendo restrita a cursos técnicos e profissionalizantes.", "B) A Educação a Distância (EaD) cresceu como alternativa educacional apenas após a pandemia, sem registros de expansão anteriores.", "C) A Educação a Distância (EaD) expandiu-se por meio de suporte tecnológico, bibliotecas virtuais e redes de comunicação, atendendo alunos de diferentes níveis e contextos.", "D) A Educação a Distância (EaD) apresentou queda na adesão durante a pandemia, devido à falta de interesse dos alunos e à ausência de recursos digitais."], correct: "C" },
+            { text: "A autoaprendizagem é um dos fundamentos da Educação a Distância (EaD), exigindo do aluno uma postura ativa diante do material didático e das orientações pedagógicas. O estudante é responsável por construir seu próprio conhecimento, organizando sua rotina de estudos, aproveitando os Ambientes Virtuais de Aprendizagem (AVAs) para interagir, discutir e transformar o alvo de estudo, e desenvolver competências essenciais para sua formação.<br><br>Considerando o conceito de autoaprendizagem na Educação a Distância (EaD), analise as alternativas e assinale aquela que representa essa prática, segundo o material de estudo.", alternatives: ["A) Aguardar que o professor oriente cada etapa do processo de aprendizagem, adotando uma postura receptiva e pouco participativa diante das atividades propostas.", "B) Priorizar o estudo individual e independente, evitando a participação em discussões e atividades coletivas para manter o foco pessoal.", "C) Planejar e conduzir a própria rotina de estudos, participar ativamente das atividades virtuais, interagir com colegas e buscar soluções para desafios de forma autônoma e responsável.", "D) Utilizar predominantemente materiais impressos, com pouca exploração dos ambientes virtuais e ferramentas digitais, limitando o acesso a diferentes fontes de conhecimento."], correct: "C" },
+            { text: "A integração entre o ensino presencial e a Educação a Distância (EaD) tornou-se uma prática comum, especialmente diante de desafios como a pandemia, ampliando as possibilidades de aprendizagem e promovendo novas formas de organização do trabalho educacional. O material aponta para uma tendência de convergência entre esses modelos, refletindo as demandas contemporâneas da sociedade.<br><br>Considerando as discussões sobre a convergência entre o ensino presencial e a Educação a Distância (EaD) apresentadas no material de estudo, analise as alternativas e assinale aquela que representa essa tendência, levando em conta as transformações recentes no campo educacional.", alternatives: ["A) Tornar-se uma prática corriqueira em todos os sistemas educacionais, promovendo a integração de diferentes modalidades de ensino.", "B) A convergência entre o ensino presencial e a Educação a Distância (EaD) implica na substituição completa das aulas presenciais por atividades virtuais.", "C) Extinção do ensino presencial, com predominância exclusiva da Educação a Distância (EaD).", "D) Restrição da Educação a Distância (EaD) a cursos técnicos, limitando sua abrangência."], correct: "A" },
+            { text: "O Ambiente Virtual de Aprendizagem (AVA) é um espaço estruturado para comportar a aprendizagem colaborativa, permitindo ao aluno equilibrar suas necessidades e habilidades pessoais por meio de atividades em grupo e do fortalecimento dos aspectos interativos. O Ambiente Virtual de Aprendizagem (AVA) oferece recursos como videoaulas, fóruns, chats, biblioteca virtual e calendário de eventos, facilitando a organização da vida acadêmica, o acesso às informações e o acompanhamento do desempenho.<br><br>Considerando as características do Ambiente Virtual de Aprendizagem (AVA), analise as alternativas e identifique aquela que representa sua função, segundo o material de estudo.", alternatives: ["A) Restringir o acesso dos estudantes aos conteúdos e aos espaços interativos, priorizando o controle do uso do ambiente em detrimento da aprendizagem colaborativa e da personalização do ensino.", "B) Disponibilizar diferentes recursos, como videoaulas, fóruns, chats, biblioteca virtual e calendário acadêmico, promovendo a organização dos estudos, o acesso à informação e o desenvolvimento de competências colaborativas.", "C) Priorizar atividades presenciais como principal meio de interação, utilizando o Ambiente Virtual de Aprendizagem (AVA) apenas como espaço de apoio complementar e repositório de materiais.", "D) Estabelecer um canal de comunicação limitado entre alunos e professores, mantendo a interação apenas para fins administrativos e de controle de participação."], correct: "B" },
+            { text: "As Tecnologias da Informação e Comunicação (TICs) desempenham papel central na transformação da Educação a Distância (EaD), promovendo inovação, multiplicidade de novos termos e práticas educacionais. O material destaca que as Tecnologias da Informação e Comunicação (TICs) ampliam as possibilidades de ensino, tornando a Educação a Distância (EaD) dinâmica e adaptável às mudanças sociais e tecnológicas.<br><br>Considerando o impacto das Tecnologias da Informação e Comunicação (TICs) na Educação a Distância (EaD), conforme apresentado no material de estudo, analise as alternativas e assinale aquela que melhor representa esse impacto, levando em conta a relação entre tecnologia e inovação educacional.", alternatives: ["A) Tornam a Educação a Distância (EaD) ultrapassada, dificultando a adaptação às novas demandas sociais.", "B) Limitam o acesso à educação, restringindo as oportunidades de aprendizagem.", "C) Geram inovação constante e multiplicidade de novos termos, tornando a Educação a Distância (EaD) dinâmica e adaptável.", "D) Reduzem a autonomia dos estudantes, tornando o processo de aprendizagem mais dependente do professor."], correct: "C" },
+            { text: "A aprendizagem na Educação a Distância (EaD) ocorre em ambientes diversos, que vão além dos limites físicos da sala de aula tradicional. O uso de recursos tecnológicos e virtuais permite que alunos e professores interajam em tempo real ou por meio de atividades previamente gravadas, ampliando as possibilidades de construção do conhecimento.<br><br>Considerando os ambientes de aprendizagem na Educação a Distância (EaD), avalie as alternativas e identifique aquela que descreve uma característica desses ambientes, segundo o material de estudo.", alternatives: ["A) Definição de horários e espaços específicos para acesso aos materiais de estudo, com o objetivo de manter uma rotina de aprendizagem padronizada.", "B) Redução do uso de recursos digitais para priorizar os métodos tradicionais de ensino, garantindo maior controle sobre o processo educativo.", "C) Ênfase em encontros presenciais ocasionais, como principal forma de acompanhamento do estudante, limitando a mediação virtual.", "D) Utilização de recursos tecnológicos e virtuais para promover a interatividade, o acesso ao conhecimento e a personalização do processo de aprendizagem."], correct: "D" },
+            { text: "O estudante da Educação a Distância (EaD) precisa desenvolver competências que vão além do domínio de conteúdos. A modalidade exige habilidades cognitivas, afetivas e organizacionais, como a capacidade de compreender e aplicar conhecimentos, manter-se motivado, lidar com críticas, administrar o tempo e criar um ambiente de estudo adequado. A autonomia e o protagonismo são essenciais para que o aluno consiga superar os desafios da aprendizagem a distância e construir seu percurso formativo com responsabilidade e equilíbrio.<br><br>Considerando as competências exigidas do estudante na Educação a Distância (EaD), analise as alternativas e assinale aquela que representa uma conduta adequada, segundo o material de estudo.", alternatives: ["A) Concentrar os estudos apenas nos momentos de avaliação, priorizando a memorização rápida dos conteúdos para cumprir os prazos.", "B) Evitar solicitar ajuda para não demonstrar insegurança, mantendo postura independente mesmo diante de dificuldades.", "C) Focar exclusivamente nas atividades individuais, evitando interações que possam comprometer o ritmo pessoal de aprendizagem.", "D) Desenvolver habilidades de leitura, escrita, organização do tempo, administração do estresse e interação com colegas e tutores."], correct: "D" },
+            { text: "Na Educação a Distância (EaD), o papel do professor tutor vai além da simples transmissão de conteúdos, ele atua como mediador pedagógico, promovendo acolhimento, escuta ativa, orientação acadêmica e estímulo à autonomia dos estudantes. Sua atuação exige competências interpessoais, domínio técnico e sensibilidade para lidar com os desafios da aprendizagem em ambientes virtuais. A presença do tutor, mesmo que silenciosa, deve ser percebida pelos alunos como suporte constante ao longo do percurso formativo.<br><br>Considerando o papel do professor tutor na Educação a Distância (EaD), analise as alternativas e assinale aquela que representa sua atuação, segundo o material de estudo.", alternatives: ["A) Focar exclusivamente na avaliação das atividades dos alunos, garantindo o cumprimento de prazos e a correção técnica dos conteúdos.", "B) Adotar postura neutra e distante, evitando envolvimento afetivo com os alunos para manter a objetividade no processo educacional.", "C) Atuar como facilitador da aprendizagem, promovendo interação, orientação acadêmica, escuta ativa e apoio contínuo aos estudantes.", "D) Limitar sua atuação à tutoria no Polo de Apoio Presencial (PAP), sem participar das atividades virtuais ou da formação continuada dos alunos."], correct: "C" },
+            { text: "A universidade, ao atuar na formação superior por meio da Educação a Distância (EaD), assume responsabilidades que vão além da simples transmissão de conteúdos. Seu papel envolve a promoção de uma educação de qualidade, capaz de contribuir para o desenvolvimento ético e profissional dos estudantes, além de responder aos anseios da sociedade. O ambiente virtual amplia as possibilidades de interação, exigindo novas práticas pedagógicas e uma atuação mais colaborativa entre professores e alunos.<br><br>Considerando o papel fundamental da universidade na oferta do ensino superior na modalidade a distância, identifique, entre as alternativas apresentadas, aquela que representa uma de suas principais funções no contexto da Educação a Distância (EaD).", alternatives: ["A) Focar exclusivamente na transmissão de conteúdos teóricos, sem considerar a experiência dos alunos.", "B) Limitar o acesso dos alunos às tecnologias digitais, restringindo o ambiente de aprendizagem.", "C) Prover suporte teórico e pedagógico, promovendo a interatividade e a colaboração entre alunos e professores.", "D) Priorizar atividades presenciais, desconsiderando os benefícios da Educação a Distância (EaD)."], correct: "C" },
+            { text: "A autonomia é considerada um dos pilares da Educação a Distância (EaD), permitindo ao aluno tomar decisões sobre seu processo de aprendizagem, organizar sua rotina de estudos e desenvolver habilidades para utilizar os recursos tecnológicos disponíveis. Essa autonomia é resultado de um processo de socialização e de construção da autodisciplina, tornando o estudante responsável por suas escolhas e pelo seu desenvolvimento intelectual.<br><br>Considerando o conceito de autonomia na Educação a Distância (EaD), analise as alternativas e identifique aquela que representa essa característica, segundo o material de estudo.", alternatives: ["A) Gerenciar o próprio processo de aprendizagem, exercendo autodisciplina, senso de responsabilidade e capacidade de adaptação, assumindo papel ativo e protagonista na construção do conhecimento.", "B) Apoiar-se continuamente nas orientações do professor e nas instruções institucionais, com pouca iniciativa para ajustar o próprio ritmo e planejamento de estudos.", "C) Cumprir as atividades e os prazos conforme o cronograma estabelecido, sem necessariamente refletir sobre as estratégias pessoais de estudo ou buscar novas formas de aprender.", "D) Manter o foco apenas em leituras obrigatórias e tarefas avaliativas, deixando de explorar recursos interativos e complementares do ambiente virtual."], correct: "A" },
+            { text: "Na era do conhecimento, as instituições de ensino assumem papel fundamental na produção, na manipulação e no compartilhamento do saber, promovendo inovação, trabalho colaborativo e desenvolvimento de uma inteligência coletiva. O material destaca que essas instituições são responsáveis por criar ambientes propícios à criatividade e à transformação social.<br><br>Com base nas informações do material de estudo, avalie as alternativas e assinale aquela que indica uma das principais funções das instituições de ensino na sociedade do conhecimento, considerando seu impacto na formação de indivíduos e na promoção da inovação.", alternatives: ["A) Restringir o acesso ao conhecimento, limitando as oportunidades de aprendizagem.", "B) Produzir e compartilhar conhecimento, promovendo inovação e desenvolvimento social.", "C) Focar apenas em métodos tradicionais de ensino, desconsiderando as novas demandas sociais.", "D) Priorizar a memorização em detrimento da criatividade, limitando o potencial dos estudantes."], correct: "B" },
+            { text: "A Educação a Distância (EaD) tem se consolidado como uma modalidade que amplia o acesso ao conhecimento, promovendo a personalização do atendimento, a redução de custos e a formação de comunidades virtuais. Por meio da Internet, a Educação a Distância (EaD) permite a transmissão em rede, a atualização constante e o compartilhamento imediato de informações, rompendo com os paradigmas tradicionais da educação presencial. Essa dinâmica favorece a construção coletiva do saber e a permanência dos participantes em ambientes de aprendizagem acolhedores e interativos.<br><br>Considerando os benefícios da aprendizagem em Educação a Distância (EaD), analise as alternativas e assinale aquela que representa essa modalidade, segundo o material de estudo.", alternatives: ["A) A Educação a Distância (EaD) promove a formação de comunidades virtuais, facilita o acesso contínuo à informação e contribui para a construção coletiva do conhecimento.", "B) A Educação a Distância (EaD) limita o acesso à informação ao horário das aulas síncronas, restringindo a autonomia dos alunos e a flexibilidade do processo educativo.", "C) A Educação a Distância (EaD) é caracterizada pela ausência de interação entre os participantes, priorizando o estudo individual.", "D) A Educação a Distância (EaD) mantém os custos e a estrutura do ensino presencial, sendo apenas uma alternativa tecnológica sem vantagens adicionais."], correct: "A" },
+           ];
+
+            // APOL 2 - EXEMPLO com 5 questões (você pode adicionar quantas quiser)
+        
+            const apol2 = [
+            { text: "A pandemia impulsionou a busca por cursos on-line por diversos públicos, além dos estudantes formais. Pessoas interessadas em melhorar sua formação profissional, iniciar novos negócios ou explorar áreas de interesse pessoal passaram a utilizar a Educação a Distância (EaD) como ferramenta de aprendizado. Cursos de edição de vídeo, confeitaria, redes sociais, yoga e autoconhecimento foram amplamente procurados, evidenciando a ampliação do alcance da educação remota.<br><br>Considerando a expansão da Educação a Distância (EaD) durante a pandemia, analise as alternativas e assinale aquela que representa esse fenômeno, segundo o material de estudo.", alternatives: ["A) A Educação a Distância (EaD) foi restrita a cursos técnicos, sem oferta de conteúdos voltados ao autoconhecimento ou à criatividade.", "B) A Educação a Distância (EaD) perdeu a relevância durante a pandemia, sendo substituída por métodos presenciais adaptados.", "C) A Educação a Distância (EaD) foi utilizada exclusivamente por estudantes universitários, sem impacto em outros públicos.", "D) A Educação a Distância (EaD) passou a atender diferentes perfis de alunos, incluindo profissionais, empreendedores e pessoas interessadas em áreas de afinidade."], correct: "D" },
+            { text: "A aprendizagem colaborativa on-line surgiu com o avanço das tecnologias de comunicação digital, especialmente a partir da década de 1980. Essa abordagem propõe que os alunos trabalhem por meio da interação.<br><br>Considerando os fundamentos da aprendizagem colaborativa on-line, analise as alternativas e assinale aquela que representa essa abordagem, segundo o material de estudo.", alternatives: ["A) A aprendizagem colaborativa on-line prioriza o estudo individual e silencioso, evitando a troca de ideias para preservar a autonomia do aluno.", "B) A aprendizagem colaborativa on-line ocorre em ambientes fechados, com foco na reprodução de respostas padronizadas e rígido controle do professor.", "C) A aprendizagem colaborativa on-line promove o trabalho em grupo, o discurso entre pares e a construção de conhecimento mediado por tecnologias digitais.", "D) A aprendizagem colaborativa on-line limita-se à leitura de textos e a realização de atividades individuais, sem suporte tecnológico."], correct: "C" },
+            { text: "Durante a pandemia, pesquisas realizadas pela Associação Brasileira de Mantenedoras de Ensino Superior (ABMES), em parceria com a Educa Insights, revelaram que os estudantes passaram a aceitar o ensino remoto como uma alternativa viável. A comodidade de estudar em casa, a economia de tempo e de recursos e a possibilidade de conciliar trabalho e estudo foram fatores que contribuíram para essa mudança de percepção. O modelo virtual passou a ser visto como um \"presencial virtual\", com interação entre professores e alunos.<br><br>Considerando a adesão dos estudantes ao ensino remoto, analise as alternativas e assinale aquela que representa essa mudança, segundo o material de estudo.", alternatives: ["A) Os estudantes passaram a valorizar o ensino remoto, destacando benefícios como comodidade, economia e interação.", "B) Os estudantes rejeitaram o ensino remoto por completo, preferindo aguardar o retorno das aulas presenciais.", "C) Os estudantes abandonaram os estudos por falta de acesso à tecnologia e ausência de alternativas educacionais.", "D) Os estudantes consideraram o ensino remoto inviável, principalmente pela falta de interação com os professores."], correct: "A" },
+            { text: "Os Ambientes Virtuais de Aprendizagem (AVAs) oferecem múltiplos recursos que favorecem a interação, a autonomia e o desenvolvimento de competências nos estudantes. A utilização de fóruns, chats, videoconferências, jogos digitais e outras ferramentas permitem que o aluno participe ativamente do processo educativo, compartilhe ideias, desenvolva habilidades cognitivas e sociais e se insira criticamente no mundo digital. Cabe ao professor planejar e mediar essas experiências, promovendo uma aprendizagem significativa e contextualizada.<br><br>Considerando o uso de recursos tecnológicos nos ambientes de aprendizagem da Educação a Distância (EaD), analise as alternativas e assinale aquela que representa essa prática, segundo o material de estudo.", alternatives: ["A) O uso de tecnologias deve ser restrito a atividades avaliativas, evitando distrações e interações que comprometam o foco do aluno.", "B) A mediação tecnológica deve ser substituída por métodos tradicionais, garantindo maior controle do professor sobre o processo de aprendizagem.", "C) Os recursos tecnológicos devem ser utilizados para promover a interação, o prazer de aprender e o desenvolvimento de competências associadas à realidade dos alunos.", "D) O ambiente virtual deve ser utilizado apenas para disponibilizar conteúdos, sem necessidade de interação entre alunos e professores."], correct: "C" },
+            { text: "A Educação a Distância (EaD) tem se consolidado como tendência, com previsão de permanência do ensino híbrido, uso de tecnologias, novas formas de avaliação, incentivo à autonomia dos alunos e educação humanizada. O futuro da Educação a Distância (EaD) envolve personalização da aprendizagem e investimentos em tecnologia e formação docente.<br><br>Fonte: PLANETA Educação. Educação pós-pandemia: 6 tendências que irão permanecer. 7 set. 2021. Disponível em: <https://www.plannetaeducacao.com.br/portal/a/455/educacao-pos-pandemia-6-tendencias-que-irao-permanecer>. Acesso em: 12 nov. 2021 (adaptado).<br><br>Com base nas tendências futuras da Educação a Distância (EaD), identifique a alternativa que representa uma dessas tendências.", alternatives: ["A) Restrição da Educação a Distância (EaD) a cursos técnicos, sem abrangência em outras áreas.", "B) Extinção do ensino presencial, com predominância exclusiva da Educação a Distância (EaD).", "C) Desvalorização da tecnologia, priorizando métodos tradicionais.", "D) Incentivo à autonomia dos alunos, personalização da aprendizagem e uso intensivo de tecnologias."], correct: "D" },
+            { text: "O modelo conectivista de aprendizagem surge como resposta às transformações provocadas pelas tecnologias digitais na forma como o conhecimento é produzido, acessado e compartilhado. Essa teoria reconhece que o aprendizado ocorre em redes dinâmicas, muitas vezes fora do indivíduo. A aprendizagem contínua, a diversidade de opiniões e a habilidade de reconhecer onde está o conhecimento necessário são aspectos centrais dessa abordagem.<br><br>Considerando os princípios do conectivismo, analise as alternativas e assinale aquela que representa essa teoria, segundo o material de estudo.", alternatives: ["A) A aprendizagem conectivista depende exclusivamente da memorização de conteúdos e da repetição de exercícios em ambientes formais.", "B) O conectivismo propõe que o conhecimento está sempre dentro do indivíduo, sendo construído apenas por meio de experiências pessoais.", "C) A aprendizagem conectivista ocorre por meio da conexão entre fontes de informação, sendo mais importante saber onde encontrar o conhecimento do que apenas saber executá-lo.", "D) O conectivismo defende que o aprendizado deve ocorrer exclusivamente em ambientes controlados, com supervisão constante do professor."], correct: "C" },
+            { text: "Em março de 2020, a pandemia da Covid-19 provocou o fechamento de escolas em escala global, afetando quase um bilhão de crianças e jovens. Diante desse cenário, os Ministérios da Educação em diversos países buscaram alternativas para manter a educação ativa, com foco na equidade e na inclusão. A Educação a Distância (EaD) passou a ser uma das principais estratégias adotadas, exigindo ações coletivas e solidárias para garantir o acesso ao ensino.<br><br>Considerando o impacto da pandemia na educação mundial, analise as alternativas e assinale aquela que representa esse contexto, segundo o material de estudo.", alternatives: ["A) A pandemia teve impacto apenas nos países em desenvolvimento, sem afetar o sistema educacional global.", "B) A pandemia provocou o fechamento de escolas em todo o mundo, levando à adoção da Educação a Distância (EaD) como alternativa educacional.", "C) A pandemia não alterou os métodos de ensino, pois as escolas permaneceram abertas com medidas de segurança.", "D) A pandemia eliminou a necessidade de políticas educacionais, já que os alunos passaram a estudar de forma autônoma."], correct: "B" },
+            { text: "A pedagogia na Educação a Distância (EaD) exige a construção de modelos que articulem teoria, prática e tecnologia, respeitando o perfil do aluno contemporâneo. A proposta pedagógica deve considerar aspectos organizacionais, conteúdos, atividades e definição do Ambiente Virtual de Aprendizagem (AVA). Esses elementos compõem a chamada arquitetura pedagógica, que orienta o planejamento e a mediação docente, promovendo a aprendizagem significativa e o desenvolvimento de competências específicas para o contexto digital.<br><br>Considerando os elementos pedagógicos da Educação a Distância (EaD), analise as alternativas e assinale aquela que representa essa abordagem, segundo o material de estudo.", alternatives: ["A) A pedagogia na Educação a Distância (EaD) deve ser construída com base na arquitetura pedagógica, integrando aspectos organizacionais, conteúdos, atividades e tecnologias.", "B) A pedagogia na Educação a Distância (EaD) deve priorizar a reprodução de conteúdos prontos, sem considerar o perfil do aluno ou a organização do ambiente virtual.", "C) A pedagogia na Educação a Distância (EaD) deve excluir o uso de tecnologias digitais, mantendo os métodos tradicionais de ensino para garantir a qualidade.", "D) A pedagogia na Educação a Distância (EaD) deve limitar-se à aplicação de avaliações padronizadas, sem considerar a interação entre professor, aluno e objeto de estudo."], correct: "A" },
+            { text: "Na Educação a Distância (EaD), o professor atua como mediador, articulando os participantes e promovendo atividades que incentivam a autonomia, o pensamento crítico e a cooperação. A interconexão entre aprendizagem individual e colaborativa permite que os alunos avancem mais do que fariam isoladamente, enriquecendo-se com as trocas e os diálogos promovidos nos ambientes virtuais.<br><br>Considerando as competências desenvolvidas na aprendizagem colaborativa on-line, analise as alternativas e assinale aquela que representa essa prática, segundo o material de estudo.", alternatives: ["A) O aluno deve evitar interações com colegas e professores, focando exclusivamente na realização de atividades individuais e na memorização de conteúdos.", "B) O aluno deve participar de atividades colaborativas, desenvolver a autonomia, interpretar textos e construir conhecimento por meio da interação com os pares.", "C) O aluno deve seguir um roteiro fixo de estudos, sem espaço para diálogo ou adaptação das atividades às necessidades do grupo.", "D) O aluno deve depender exclusivamente do professor para interpretar os conteúdos e resolver os problemas, sem desenvolver autonomia."], correct: "B" },
+            { text: "O conectivismo propõe que o conhecimento não está restrito ao indivíduo, mas circula em redes, Bancos de Dados e organizações. A aprendizagem ocorre por meio da conexão entre fontes de informação, sendo fundamental saber onde encontrar o conhecimento necessário para resolver problemas novos.<br><br>Fonte: KRIPKA, Rosana Maria Luvezute; VIALI, Lori; DICKEL, Adriana; LAHM, Regis Alexandre. Ensino, aprendizagem e novas tecnologias: Relações entre abordagens teóricas clássicas e contemporâneas. Revista de Educação em Ciências e Matemática, v. 16, n. 37, p. 39-53, 2020. Disponível em: <http://dx.doi.org/10.18542/amazrecm.v16i37.8003> (adaptado).<br><br>Considerando o modelo conectivista de aprendizagem, assinale a alternativa que representa um princípio central dessa teoria.", alternatives: ["A) O conhecimento é adquirido exclusivamente por meio de experiências individuais e memorização de conteúdos.", "B) A aprendizagem ocorre pela conexão entre diferentes fontes de informação, sendo essencial saber onde encontrar o conhecimento necessário.", "C) O aprendizado depende apenas da repetição de exercícios em ambientes formais.", "D) O conhecimento reside apenas em aparelhos não humanos, sem a participação do estudante."], correct: "B" },
+            { text: "As tecnologias digitais têm desempenhado papel fundamental na construção de uma teoria integrada para a Educação a Distância (EaD). Embora existam críticas quanto à superficialidade de algumas propostas tecnológicas, se reconhece que, quando bem utilizadas, essas ferramentas podem potencializar a autonomia dos estudantes e favorecer a construção do conhecimento em ambientes flexíveis e interativos.<br><br>Considerando as contribuições das tecnologias para uma teoria integrada na Educação a Distância (EaD), assinale a alternativa que apresenta corretamente essa relação.", alternatives: ["A) As tecnologias digitais devem ser evitadas na Educação a Distância (EaD), pois dificultam o desenvolvimento humano e comprometem a qualidade da aprendizagem.", "B) As tecnologias digitais devem ser utilizadas apenas como suporte técnico, sem interferência na mediação pedagógica ou na construção do conhecimento.", "C) As tecnologias digitais devem substituir completamente o papel do professor, tornando a Educação a Distância (EaD) um processo automatizado e impessoal.", "D) As tecnologias digitais, quando bem aplicadas, favorecem o acesso à informação, a personalização do ritmo de aprendizagem e a construção autônoma do conhecimento."], correct: "D" },
+            { text: "Na Educação a Distância (EaD), o conectivismo oferece uma nova perspectiva sobre o processo de aprendizagem, ao considerar que o conhecimento circula em redes e que o aprendizado ocorre por meio da interação com múltiplas fontes. A tecnologia da Internet transforma o ato de aprender em uma atividade coletiva, colaborativa e em constante atualização.<br><br>Considerando as aplicações práticas do conectivismo na Educação a Distância (EaD), analise as alternativas e assinale aquela que representa essa abordagem, segundo o material de estudo.", alternatives: ["A) O aluno deve desenvolver a capacidade de identificar conexões entre ideias, atualizar conhecimentos e aprender com redes de colaboração.", "B) O aluno deve seguir um plano de estudos fixo, com foco em conteúdos estáticos e sem necessidade de atualização constante.", "C) O aluno deve evitar o uso de redes sociais e ambientes digitais, pois esses espaços não contribuem para o aprendizado formal.", "D) O aluno deve depender exclusivamente do professor para acessar e interpretar o conhecimento necessário para resolver problemas."], correct: "A" },
+            { text: "A pandemia da Covid-19 acelerou a adoção da Educação a Distância (EaD), exigindo adaptação de professores e alunos, superação de desigualdades e uso intensivo de tecnologias digitais. O ensino remoto tornou-se uma alternativa viável, promovendo comodidade, economia de tempo e interação virtual.<br><br>Fonte: KIKUTI, Mônica. Ensino a distância se consolida na pandemia. Revista Entre Asanas: Informação em Pauta, 9 abr. 2021. Disponível em: <https://www.revistaentreasanas.com.br/post/ensino-%C3%A0-dist%C3%A2ncia-se-consolida-na-pandemia>. Acesso em: 12 nov. 2021 (adaptado).<br><br>Considerando os desafios enfrentados pela Educação a Distância (EaD) durante a pandemia, assinale a alternativa que representa uma consequência positiva desse processo.", alternatives: ["A) Ampliação do acesso à educação, comodidade e interação entre professores e alunos.", "B) Rejeição total do ensino remoto por parte dos estudantes.", "C) Exclusão de alunos sem acesso à Internet, sem alternativas educacionais.", "D) Retorno imediato ao ensino presencial, sem considerar os avanços da Educação a Distância (EaD)."], correct: "A" },
+            { text: "As transformações sociais e tecnológicas da contemporaneidade provocaram mudanças significativas nas teorias educacionais. A Educação a Distância (EaD), ao incorporar mídias digitais e ambientes virtuais, passou a demandar novas concepções sobre o processo de ensino e aprendizagem. Nesse contexto, teorias como o construtivismo social e a aprendizagem situada ganham destaque por valorizarem a interação, a participação em comunidades de prática e a construção ativa do conhecimento.<br><br>Considerando as teorias contemporâneas da aprendizagem e sua relação com a Educação a Distância (EaD), analise as alternativas e assinale aquela que representa essa abordagem, segundo o material de estudo.", alternatives: ["A) A Educação a Distância (EaD) fundamenta-se exclusivamente em métodos tradicionais de ensino, com foco na memorização e na transmissão de conteúdos prontos.", "B) A Educação a Distância (EaD) utiliza tecnologias digitais apenas como suporte técnico, sem influência nas concepções teóricas da aprendizagem.", "C) A Educação a Distância (EaD) limita-se à aplicação do behaviorismo, com foco em estímulo-resposta e controle do comportamento do aluno.", "D) A Educação a Distância (EaD) favorece a aprendizagem situada e o construtivismo social, promovendo a participação em comunidades de prática e a construção colaborativa do saber."], correct: "D" },
+            { text: "A prática pedagógica na Educação a Distância (EaD) exige do aluno disciplina, autonomia e envolvimento contínuo com o Ambiente Virtual de Aprendizagem (AVA). Para que a aprendizagem ocorra de forma significativa, é necessário que o estudante organize sua rotina, participe das atividades propostas, interaja com os professores e colegas e compartilhe ideias.<br><br>Considerando a prática pedagógica em Educação a Distância (EaD) e o uso do Ambiente Virtual de Aprendizagem (AVA), analise as alternativas e assinale aquela que representa uma conduta adequada do estudante, segundo o material de estudo.", alternatives: ["A) Acessar o Ambiente Virtual de Aprendizagem (AVA) apenas em dias de avaliação, priorizando o estudo individual e evitando interações que possam comprometer sua concentração.", "B) Utilizar o Ambiente Virtual de Aprendizagem (AVA) como espaço de socialização, compartilhando ideias, dúvidas e materiais, desenvolvendo habilidades cognitivas e afetivas.", "C) Ignorar os recursos interativos do Ambiente Virtual de Aprendizagem (AVA), focando apenas na leitura dos textos e na realização das atividades obrigatórias.", "D) Depender exclusivamente do tutor para organizar sua rotina de estudos e esclarecer dúvidas, sem assumir protagonismo no processo de aprendizagem."], correct: "B" },
+            { text: "A pandemia da Covid-19 provocou o fechamento das escolas e a interrupção das atividades presenciais, gerando um déficit de aprendizagem significativo. Estudos apontam que essa perda de aprendizagem pode impactar diretamente a produtividade futura dos estudantes, com reflexos econômicos de longo prazo. Estimativas indicam que a redução das atividades escolares em um terço do ano pode representar uma queda de 1,5% no Produto Interno Bruto (PIB) ao longo do século, nos países da Organização para a Cooperação e Desenvolvimento Econômico (OCDE).<br><br>Considerando os impactos da pandemia na aprendizagem e na economia, analise as alternativas e assinale aquela que representa essa relação, segundo o material de estudo.", alternatives: ["A) A perda de aprendizagem durante a pandemia não afeta a produtividade futura dos estudantes, sendo um impacto apenas momentâneo.", "B) A pandemia não teve impacto na aprendizagem, pois os alunos continuaram estudando normalmente em casa.", "C) A perda de aprendizagem pode gerar impactos econômicos significativos, com redução do Produto Interno Bruto (PIB) nos países afetados pelo fechamento das escolas.", "D) A perda de aprendizagem afeta apenas os alunos do ensino superior, sem reflexos na educação básica."], correct: "C" },
+            { text: "Na Educação a Distância (EaD) mediada por tecnologias digitais, o papel do professor vai além da simples transmissão de conteúdos. A pedagogia humanizadora, nesse contexto, valoriza a afetividade, a empatia e a criação de ambientes virtuais que favoreçam a aprendizagem significativa e o desenvolvimento integral dos estudantes.<br><br>Considerando o papel do professor na Educação a Distância (EaD) com uso de tecnologias digitais, analise as alternativas e assinale aquela que representa essa atuação, segundo o material de estudo.", alternatives: ["A) O professor deve manter uma postura neutra e distante, priorizando a objetividade técnica e evitando o envolvimento afetivo com os alunos.", "B) O professor deve atuar como tutor e mediador, promovendo a interação, o acolhimento e a aprendizagem significativa por meio das tecnologias digitais.", "C) O professor deve limitar sua atuação à aplicação de conteúdos prontos, sem interferência no processo de aprendizagem dos alunos.", "D) O professor deve delegar todas as funções pedagógicas às ferramentas tecnológicas, atuando apenas como supervisor técnico."], correct: "B" },
+            { text: "A capacitação docente em tecnologias digitais é um processo contínuo, que envolve atualização, treinamento e superação de desafios, como acesso à Internet, adaptação a novas plataformas e resistência a mudanças. O professor precisa buscar aprimoramento para atuar de forma eficiente no ensino remoto.<br><br>Fonte: SANTOS, Marcos Pereira dos Santos. Formação continuada de docentes na modalidade Educação a Distância no Brasil contemporâneo: Re-pensando e in(ve)stigando teorias e práticas pedagógicas. In: SANTOS, Marcos Pereira dos (Org.). Formação Docente: Importância, estratégias e princípios. Curitiba: Bagai, 2020. v. 1. p. 19-39 (adaptado).<br><br>Com base nos desafios da capacitação docente em tecnologias, identifique a alternativa que representa uma atitude adequada do professor.", alternatives: ["A) Resistir às mudanças, mantendo as práticas convencionais e evitando o uso de novas ferramentas.", "B) Buscar formação continuada, participar de treinamentos e adaptar-se às novas demandas do ensino remoto.", "C) Depender exclusivamente de plataformas gratuitas, sem buscar alternativas para melhorar o ensino.", "D) Ignorar as dificuldades dos alunos, focando apenas na transmissão de conteúdos."], correct: "B" },
+            { text: "A formação docente para atuar na Educação a Distância (EaD) exige domínio de conteúdos, habilidades digitais e capacidade de mediar o processo de aprendizagem com o uso de tecnologias. O professor deve ser capaz de criar ambientes acolhedores, promover a interação e adaptar metodologias às necessidades dos alunos.<br><br>Fonte: AZEVEDO, Maria Lucia de; PADOAN, Roberta Ribeiro Soares Moura; MARANGONI, Silvia Cristiane. A transformação da educação no Brasil: Efeitos da pandemia 2020. In: SANTOS, Marcos Pereira dos (Org.). Formação Docente: Importância, estratégias e princípios. Curitiba: Bagai, 2020. v. 1. p. 72-82 (adaptado).<br><br>Considerando os desafios da formação docente para a Educação a Distância (EaD), assinale a alternativa que representa uma competência essencial do professor nesse contexto.", alternatives: ["A) Priorizar apenas métodos tradicionais, sem utilizar recursos digitais.", "B) Limitar o uso de tecnologias à transmissão de conteúdos prontos.", "C) Dominar conteúdos, habilidades digitais e promover ambientes interativos e acolhedores.", "D) Focar exclusivamente na avaliação técnica dos alunos, sem considerar os aspectos afetivos."], correct: "C" },
+           ];
+
+        // Lista de todos os quizzes disponíveis
+        const quizzes = {
+            apol1: { nome: "📖 APOL 1 - Formação Inicial em Educação a Distância", questoes: apol1 },
+            apol2: { nome: "📝 APOL 2 - Formação Inicial em Educação a Distância", questoes: apol2 },
+
+        };
+
+        let currentQuiz = "apol1";  // Quiz ativo
+        let userAnswers = [];
+        let currentIndex = 0;
+        let isSubmitted = false;
+
+        // Função para criar os botões de seleção de quizzes
+        function renderQuizSelector() {
+            const selectorContainer = document.getElementById('quiz-selector');
+            selectorContainer.innerHTML = '';
+            
+            for (const [key, quiz] of Object.entries(quizzes)) {
+                const btn = document.createElement('button');
+                btn.textContent = quiz.nome;
+                btn.classList.add('quiz-btn');
+                if (key === currentQuiz) {
+                    btn.classList.add('active');
+                }
+                btn.addEventListener('click', () => {
+                    currentQuiz = key;
+                    resetQuiz();
+                    renderQuizSelector();
+                    renderCurrentQuestion();
+                    updateNavigationButtons();
+                    document.getElementById('result-area').style.display = 'none';
+
+                });
+                selectorContainer.appendChild(btn);
+            }
+        }
+
+        function getCurrentQuestions() {
+            return quizzes[currentQuiz].questoes;
+        }
+
+        function updateNavigationButtons() {
+            const questions = getCurrentQuestions();
+            const navContainer = document.getElementById('questions-nav');
+            navContainer.innerHTML = '';
+            
+            for (let i = 0; i < questions.length; i++) {
+                const btn = document.createElement('button');
+                btn.textContent = i + 1;
+                btn.classList.add('question-number-btn');
+                
+                if (i === currentIndex) {
+                    btn.classList.add('active');
+                }
+                
+                if (userAnswers[i] !== null && !isSubmitted) {
+                    btn.classList.add('answered');
+                }
+                
+                btn.addEventListener('click', () => {
+                    if (isSubmitted) {
+                        currentIndex = i;
+                        renderCurrentQuestion();
+                        showFeedbackForCurrentQuestion();
+                        updateNavigationButtons();
+                    } else {
+                        currentIndex = i;
+                        renderCurrentQuestion();
+                        updateNavigationButtons();
+                    }
+                });
+                
+                navContainer.appendChild(btn);
+            }
+        }
+
+        // FUNÇÃO RENDER CURRENT QUESTION - MODIFICADA PARA SUPORTAR IMAGENS
+        function renderCurrentQuestion() {
+            const questions = getCurrentQuestions();
+            const question = questions[currentIndex];
+            const container = document.getElementById('question-content');
+            const savedAnswer = userAnswers[currentIndex];
+            
+            // Verifica se a questão tem imagem e cria o HTML da imagem
+            let imageHtml = '';
+            if (question.image) {
+                imageHtml = `
+                    <div class="question-image">
+                        <img src="${question.image}" alt="Imagem da questão">
+                    </div>
+                `;
+            }
+            
+            container.innerHTML = `
+                <div class="question-number-display">Questão ${currentIndex + 1}/${questions.length}</div>
+                ${imageHtml}
+                <div class="question-text">${question.text}</div>
+                <ul class="alternatives">
+                    ${question.alternatives.map((alt, altIdx) => {
+                        const letter = String.fromCharCode(65 + altIdx);
+                        const isChecked = (savedAnswer === letter);
+                        const optionText = alt.substring(3);
+                        return `
+                            <li>
+                                <label>
+                                    <input type="radio" name="current-question" value="${letter}" ${isChecked ? 'checked' : ''} ${isSubmitted ? 'disabled' : ''} onchange="saveCurrentAnswer('${letter}')">
+                                    <span class="option-letter">${letter})</span>
+                                    <span class="option-text">${optionText}</span>
+                                </label>
+                            </li>
+                        `;
+                    }).join('')}
+                </ul>
+            `;
+            
+            const answeredCount = userAnswers.filter(a => a !== null).length;
+            const progressPercent = (answeredCount / questions.length) * 100;
+            document.getElementById('progress-bar').style.width = `${progressPercent}%`;
+            document.getElementById('question-status').textContent = `📌 ${answeredCount} de ${questions.length} questões respondidas`;
+        }
+        
+        window.saveCurrentAnswer = function(value) {
+            if (isSubmitted) return;
+            userAnswers[currentIndex] = value;
+            updateNavigationButtons();
+            
+            const questions = getCurrentQuestions();
+            const answeredCount = userAnswers.filter(a => a !== null).length;
+            const progressPercent = (answeredCount / questions.length) * 100;
+            document.getElementById('progress-bar').style.width = `${progressPercent}%`;
+            document.getElementById('question-status').textContent = `📌 ${answeredCount} de ${questions.length} questões respondidas`;
+        }
+        
+        function showFeedbackForCurrentQuestion() {
+            const existingFeedback = document.querySelector('.feedback');
+            if (existingFeedback) existingFeedback.remove();
+            
+            const questions = getCurrentQuestions();
+            const question = questions[currentIndex];
+            const userAnswer = userAnswers[currentIndex];
+            const isCorrect = (userAnswer === question.correct);
+            
+            const feedbackDiv = document.createElement('div');
+            feedbackDiv.className = `feedback ${isCorrect ? 'correct' : 'incorrect'}`;
+            
+            if (isCorrect) {
+                const correctText = question.alternatives.find(alt => alt.startsWith(question.correct + ")"));
+                feedbackDiv.innerHTML = `✅ Correto! ${correctText}`;
+            } else {
+                let msg = `❌ Incorreto. `;
+                if (userAnswer) {
+                    const userText = question.alternatives.find(alt => alt.startsWith(userAnswer + ")"));
+                    msg += `Você marcou ${userAnswer}) ${userText ? userText.substring(3) : ''}. `;
+                } else {
+                    msg += `Você não respondeu esta questão. `;
+                }
+                const correctText = question.alternatives.find(alt => alt.startsWith(question.correct + ")"));
+                msg += `Resposta correta: ${question.correct}) ${correctText ? correctText.substring(3) : ''}`;
+                feedbackDiv.innerHTML = msg;
+            }
+            
+            document.getElementById('question-card').appendChild(feedbackDiv);
+        }
+        
+        function submitQuiz() {
+            if (isSubmitted) return;
+            
+            const questions = getCurrentQuestions();
+            const notAnswered = [];
+            for (let i = 0; i < userAnswers.length; i++) {
+                if (userAnswers[i] === null) notAnswered.push(i + 1);
+            }
+            
+            if (notAnswered.length > 0) {
+                if (!confirm(`⚠️ Você ainda não respondeu as questões: ${notAnswered.join(', ')}.\nDeseja corrigir mesmo assim?`)) {
+                    return;
+                }
+            }
+            
+            isSubmitted = true;
+            const correctCount = calculateScore();
+            const totalQuestions = questions.length;
+            const percentage = (correctCount / totalQuestions) * 100;
+            
+            let scoreClass = '';
+            let message = '';
+            
+            if (correctCount === totalQuestions) {
+                scoreClass = 'perfect';
+                message = '🏆 Perfeito! Você acertou todas as questões! Parabéns! 🎉';
+            } else if (correctCount >= Math.floor(totalQuestions * 0.7)) {
+                scoreClass = 'good';
+                message = '🌟 Muito bom! Você tem um excelente conhecimento.';
+            } else if (correctCount >= Math.floor(totalQuestions * 0.5)) {
+                scoreClass = 'regular';
+                message = '👍 Bom trabalho! Estude os pontos que errou para melhorar ainda mais.';
+            } else {
+                scoreClass = 'bad';
+                message = '📚 Continue estudando! Reveja o material da disciplina e tente novamente.';
+            }
+            
+            const resultArea = document.getElementById('result-area');
+            resultArea.innerHTML = `
+                <h2>📊 Resultado Final - ${quizzes[currentQuiz].nome}</h2>
+                <div class="score ${scoreClass}">${correctCount} / ${totalQuestions}</div>
+                <p style="margin-top: 10px;">${message}</p>
+                <p>Percentual de acertos: ${percentage.toFixed(1)}%</p>
+                <hr>
+                <p style="font-size: 0.9rem; color: #666;">✅ Nota oficial: ${(correctCount * 6.7).toFixed(1)} pontos (considerando 6,7 por questão)</p>
+                <p style="font-size: 0.85rem; color: #888; margin-top: 10px;">💡 Clique nos números das questões para ver o feedback de cada uma!</p>
+            `;
+            resultArea.style.display = 'block';
+            
+            showFeedbackForCurrentQuestion();
+            renderCurrentQuestion();
+            updateNavigationButtons();
+            
+            resultArea.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+        
+        function calculateScore() {
+            const questions = getCurrentQuestions();
+            let correctCount = 0;
+            for (let i = 0; i < questions.length; i++) {
+                if (userAnswers[i] === questions[i].correct) {
+                    correctCount++;
+                }
+            }
+            return correctCount;
+        }
+        
+        function resetQuiz() {
+            const questions = getCurrentQuestions();
+            userAnswers = new Array(questions.length).fill(null);
+            currentIndex = 0;
+            isSubmitted = false;
+            
+            const existingFeedback = document.querySelector('.feedback');
+            if (existingFeedback) existingFeedback.remove();
+            
+            document.getElementById('result-area').style.display = 'none';
+            
+            renderCurrentQuestion();
+            updateNavigationButtons();
+        }
+        
+        // Inicialização
+        renderQuizSelector();
+        resetQuiz();
+        
+        document.getElementById('submit-btn').addEventListener('click', submitQuiz);
+        document.getElementById('reset-btn').addEventListener('click', resetQuiz);
+    </script>
+</body>
+</html>
