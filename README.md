@@ -44,10 +44,10 @@ O quiz cobre os seguintes tópicos da disciplina:
 
 ### Acesse online
 O quiz está disponível online através do GitHub Pages:
-**[Clique aqui para acessar o quiz](https://jonathastrevezani.github.io/Quiz-Farmacia/)** *(substitua pelo link correto)*
+**[Clique aqui para acessar o quiz](https://jonathastrevezani.github.io/Quiz-Forma-o-Inicial-em-Educa-o-a-Dist-ncia/)**
 
 ### Executar localmente
 
 1. Clone o repositório:
 ```bash
-git clone https://github.com/jonathastrevezani/Quiz-EaD.git
+git clone https://github.com/jonathastrevezani/Quiz-Forma-o-Inicial-em-Educa-o-a-Dist-ncia.git
