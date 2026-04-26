@@ -44,7 +44,7 @@ O quiz cobre os seguintes tópicos da disciplina:
 
 ### Acesse online
 O quiz está disponível online através do GitHub Pages:
-**[Clique aqui para acessar o quiz](https://jonathastrevezani.github.io/Quiz-Forma-o-Inicial-em-Educa-o-a-Dist-ncia/)**
+**[Clique aqui para acessar o quiz](https://jonathastrevezani.github.io/Quiz2/)**
 
 ### Executar localmente
 
